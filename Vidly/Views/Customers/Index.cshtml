@@ -1,0 +1,84 @@
+﻿@using System.Web.UI.WebControls
+@using Vidly.Models
+@model IList<Vidly.Models.Customer>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Customers</h2>
+
+@* @if (Model.Count == 0)
+    {
+        <p>No Customers Yet.</p>
+    }
+    else
+    {
+*@
+<table id="customers" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Customers</th>
+            <th>Membership Type</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var table = $("#customers").DataTable({
+                ajax: {
+                    url: "/api/customers",
+                    dataSrc: ""
+                },
+                columns: [  
+                    {
+                        data: "name",
+                        render: function (data, type, customer) {
+                            return "<a href='/customers/edit/" + customer.id + "'>" + customer.name + "</a>";
+                        }
+                    },
+                    {
+                        data: "membershipType.name"
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<button class='btn-link js-delete' data-customer-id=" + data + ">Delete</button>";
+                        }
+                    }
+                ]
+            });
+
+            //$("#customers .js-delete").on("click", function () {
+            $("#customers").on("click", " .js-delete", function () {
+                var button = $(this);
+                bootbox.confirm("Are you sure you whant to delete this customer?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/api/customers/" + /*$(this)*/button.attr("data-customer-id"),
+                            method: "DELETE",
+                            success: function () {
+                                // console.log("Success");
+                                table.row(button.parents("tr")).remove().draw();
+                                // button.parents("tr").remove();
+                            }
+
+                        });
+                    }
+                });
+
+            });
+
+
+        });
+    </script>
+}
